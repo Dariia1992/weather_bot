@@ -1,0 +1,35 @@
+import pyowm
+import telebot
+
+
+owm = pyowm.OWM("10fe19955bb174842939048d75792329")
+mgr = owm.weather_manager()
+
+
+bot = telebot.TeleBot("6674745231:AAFNC0bBRr0O-qcY5xpFkd4_rWRUq7U4zUE")
+
+
+@bot.message_handler(content_types=["text"])
+def send_weather(message):
+    
+    observation = mgr.weather_at_place(message.text)
+    w = observation.weather
+    temp = w.temperature("celsius")["temp"]
+    
+   
+    answer = "In city " + message.text + ", it is currently " + w.detailed_status + "\n"
+    answer += "Temperature now: " + str(temp) + "°C\n"
+    if temp < 10:
+        answer += "It's cold now, don't forget to dress warmly!"
+    elif temp < 1:
+        answer += "It's frosty outside!"
+    elif temp > 20:
+        answer += "Nice weather!"
+    else:
+        answer += "Dress for the weather!"
+    
+   
+    bot.send_message(message.chat.id, answer)
+
+
+bot.polling(none_stop=True)
